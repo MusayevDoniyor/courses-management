@@ -73,4 +73,26 @@ export class CoursesService {
 
     return { message: 'Course deleted successfully', course: deleted };
   }
+
+  async searchCourses(
+    teacher?: string,
+    price?: number,
+  ): Promise<ICourseListResponse> {
+    const filters: any = {};
+
+    if (teacher) filters.teacherName = { $regex: teacher, $options: 'i' };
+    if (price) filters.price = price;
+
+    const courses = await this.courseModel.find(filters).exec();
+
+    if (!courses.length) {
+      throw new NotFoundException('No courses found with given filters');
+    }
+
+    return {
+      message: 'Filtered courses fetched',
+      count: courses.length,
+      courses,
+    };
+  }
 }
